@@ -17,7 +17,7 @@ class MenuView:
         return modelo, placa, valor_diaria
 
     def ler_identificador_veiculo(self):
-        return input("Digite o modelo ou a placa do veículo: ")
+        return input("Digite a placa do veículo: ")
 
     def exibir_veiculos(self, veiculos):
         if not veiculos:
