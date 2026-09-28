@@ -1,7 +1,7 @@
-from model.veiculo import Veiculo
+from model.carro import Carro
+from model.moto import Moto
 from model.locadora import Locadora
 from view.menu_view import MenuView
-
 
 class LocadoraController:
     def __init__(self):
@@ -30,19 +30,29 @@ class LocadoraController:
             self.view.exibir_mensagem("Opção inválida. Tente novamente.")
 
     def _cadastrar_veiculo(self):
+        tipo = self.view.ler_tipo_veiculo()
+
         try:
-            modelo, placa, valor_diaria = self.view.ler_dados_veiculo()
+            modelo, placa, valor_diaria = self.view.ler_dados_basicos()
         except ValueError:
             self.view.exibir_mensagem("Valor da diária inválido.")
             return
 
-        veiculo = Veiculo(modelo, placa, valor_diaria)
+        if tipo == "1":
+            quantidade_portas = self.view.ler_quantidade_portas()
+            veiculo = Carro(modelo, placa, valor_diaria, quantidade_portas)
+        elif tipo == "2":
+            cilindradas = self.view.ler_cilindradas()
+            veiculo = Moto(modelo, placa, valor_diaria, cilindradas)
+        else:
+            self.view.exibir_mensagem("Tipo de veículo inválido.")
+            return
+
         if self.locadora.cadastrar_veiculo(veiculo):
             self.view.exibir_mensagem("Veículo cadastrado com sucesso.")
         else:
-            self.view.exibir_mensagem(
-                "Já existe um veículo cadastrado com essa placa."
-            )
+            self.view.exibir_mensagem("Já existe um veículo com essa placa. Cadastro não realizado.")
+
 
     def _listar_veiculos(self):
         print("===== Veículos cadastrados: =====")
@@ -51,16 +61,26 @@ class LocadoraController:
     def _alugar_veiculo(self):
         placa = self.view.ler_identificador_veiculo()
         veiculo = self.locadora.buscar_por_placa(placa)
+
         if veiculo is None:
             self.view.exibir_mensagem("Veículo não encontrado.")
-        elif not veiculo.disponivel:
+            return
+
+        if not veiculo.disponivel:
             self.view.exibir_mensagem("Esse veículo já está alugado.")
-        elif self.locadora.alugar_veiculo(placa):
+            return
+
+        dias = self.view.ler_dias()
+        valor = veiculo.calcular_aluguel(dias)
+        self.view.exibir_valor_aluguel(valor)
+
+        if self.locadora.alugar_veiculo(placa):
             self.view.exibir_mensagem("Veículo alugado com sucesso.")
 
     def _devolver_veiculo(self):
         placa = self.view.ler_identificador_veiculo()
         veiculo = self.locadora.buscar_por_placa(placa)
+        
         if veiculo is None:
             self.view.exibir_mensagem("Veículo não encontrado.")
         elif veiculo.disponivel:
