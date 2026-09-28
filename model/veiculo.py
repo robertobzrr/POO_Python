@@ -17,6 +17,9 @@ class Veiculo:
         self.disponivel = True
         return True
 
+    def calcular_aluguel(self, dias):
+        raise NotImplementedError("Este método deve ser implementado nas subclasses.")
+
     def exibir_informacoes(self):
         return (
             f"Modelo: {self.modelo} | Placa: {self.placa} | "
